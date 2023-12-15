@@ -173,12 +173,12 @@ class Ui_MainWindow(object):
                     time.sleep(2)
                     print('Congratulations!! {} squats done'.format(repCount))
                     success = True
-                    cv2.destroyAllWindows()
+                    # cv2.destroyAllWindows()
                     break
                 ret, frame = cap.read()
                 if frame is None:
                     print('Error: Image not found or could not be loaded.')
-                    cv2.destroyAllWindows()
+                    # cv2.destroyAllWindows()
                     sys.exit()
                 else:
                     frame = cv2.resize(frame, (1080, 800), fx=0,fy=0, interpolation = cv2.INTER_CUBIC)
