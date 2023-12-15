@@ -146,7 +146,7 @@ class Ui_MainWindow(object):
         mp_pose = mp.solutions.pose
 
         cap = None
-        cap = cv2.VideoCapture("/home/arrafi/squat_front/Squat_test.mp4") # vide file
+        cap = cv2.VideoCapture("/home/arrafi/squat_front/test_vid.mp4") # vide file
         # cap = cv2.VideoCapture(0)
 
         while cap.read()[1] is None:
