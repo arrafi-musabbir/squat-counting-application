@@ -47,8 +47,8 @@ def detect_squat(squat_n=5):
     mp_pose = mp.solutions.pose
 
     cap = None
-    cap = cv2.VideoCapture("/home/arrafi/squat_front/Squat_test.mp4") # vide file
-    # cap = cv2.VideoCapture(0)
+    # cap = cv2.VideoCapture("/home/arrafi/squat_front/Squat_test.mp4") # vide file
+    cap = cv2.VideoCapture(0)
 
     while cap.read()[1] is None:
         print("Waiting for Video")
