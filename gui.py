@@ -233,8 +233,8 @@ class Ui_MainWindow(object):
                                     
                     print("Squats done: " + (str)(repCount))
 
-                    if cv2.waitKey(1) & 0xFF == 27:
-                        break
+                    # if cv2.waitKey(1) & 0xFF == 27:
+                    #     break
         return success
     # Start Animation 
     def startAnimation(self): 
