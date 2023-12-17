@@ -4,13 +4,8 @@ This is a desktop application that utilizes `mediapipe` library for pose estimat
 
 The application is being deployed in an [Intel NUC mini pc](https://www.intel.com/content/www/us/en/products/details/nuc/mini-pcs/products.htm) which maintains serial communication with a coin-dispenser machine. 
 
-#### GUI workflow
-The GUI application will operate like the following
-![gui-workflow](https://github.com/arrafi-musabbir/squat-detection-application/blob/main/gui-workflow.gif)
+#### 
 
-#### Squat Detection in Backend
-![squat-detection](https://github.com/arrafi-musabbir/squat-detection-application/blob/main/squat_results.gif)
-
-| Cat pics               | Dog pics               |
+| GUI workflow             | Squat Detection in Backend              |
 | ---------------------- | --------- |
-| ![cat]([images/cat.png](https://github.com/arrafi-musabbir/squat-detection-application/blob/main/gui-workflow.gif)) | ![dog]([images/dog.png](https://github.com/arrafi-musabbir/squat-detection-application/blob/main/squat_results.gif)) |
+| ![cat](https://github.com/arrafi-musabbir/squat-detection-application/blob/main/gui-workflow.gif) | ![dog](https://github.com/arrafi-musabbir/squat-detection-application/blob/main/squat_results.gif) |
