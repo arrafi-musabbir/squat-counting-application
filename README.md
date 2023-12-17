@@ -8,7 +8,7 @@ The application is being deployed in an [Intel NUC mini pc](https://www.intel.co
 
 | GUI workflow             | Squat Detection in Backend              |
 | ---------------------- | --------- |
-| ![cat](https://github.com/arrafi-musabbir/squat-detection-application/blob/main/gui-workflow.gif) | ![dog](https://github.com/arrafi-musabbir/squat-detection-application/blob/main/squat_results.gif) |
+| ![gui-workflow](https://github.com/arrafi-musabbir/squat-detection-application/blob/main/gui-workflow.gif) | ![squat-detection-backend](https://github.com/arrafi-musabbir/squat-detection-application/blob/main/squat_results.gif) |
 
 ### system information
 **Intel® NUC Mini PC with 5th Generation Intel® Core™ Processors**
