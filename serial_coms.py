@@ -7,9 +7,9 @@ from threading import Thread
 class CHSerial:
 
     def __init__(self, port):
-        self.cohop = serial.Serial(port=port, bytesize=serial.EIGHTBITS,
+        self.cohop = serial.Serial(port=port, bytesize=serial.EIGHTBITS, baudrate=9600,
                                    parity=serial.PARITY_EVEN, stopbits=serial.STOPBITS_ONE, timeout=1)
-        self.limit = 5  # limit for the number of retries when an error occurs
+        self.limit = 2  # limit for the number of retries when an error occurs
         self.retries = 0
         self.timeout = 2  # timeout in seconds
 
@@ -115,4 +115,8 @@ class CHSerial:
         hex_final_list.append(hex_list)
         return hex_final_list
 
-d = CHSerial(port='/dev/ttyUSB0')
+if  __name__=='__main__':
+    d = CHSerial(port='/dev/ttyUSB0')
+
+    d.poll_data(True)
+    d.dispense(1)

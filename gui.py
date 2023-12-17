@@ -1,16 +1,16 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QMovie 
 import os
 import config
 import time
-from test import detect_squat
 import sys
 import mediapipe as mp
 import cv2
 import numpy as np
 import threading    
-from num2words import num2words
-# from PyQt5.QtGui import QMovie
+from serial_coms import CHSerial
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -83,29 +83,58 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         self.stopOps = False
         self.dualN = False
+        if config.dispenser:
+            try:
+                self.dispenser = CHSerial(port='/dev/ttyUSB0')
+                self.dispenser.poll_data(True)
+            except:
+                self.warning('dispenser not connected')
+        self.tout = False
+        # self.dis_warning()
 
+    def dis_warning(self):
+        messagebox = QMessageBox(self.centralwidget)
+        messagebox.setWindowTitle("OOPS!")
+        messagebox.setIcon(QMessageBox.Critical)
+        messagebox.setText("sorry! your squats have been timed-out")
+        messagebox.setStandardButtons(messagebox.NoButton)
+        
+        time_milliseconds = 3000
+
+        QTimer.singleShot(time_milliseconds, lambda : messagebox.done(0))
+        messagebox.exec_()
+        # time.sleep(3)
+        # messagebox.close()
+        # sys.exit()
+        # messagebox.exec_()
+    
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
 
     def go_back(self):
         print("go back pressed: returning to home screen")
-        if self.state == 'prepare':
-            self.stopOps = True
-            self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(),config.start_screen)))
-            self.state = 'start'
-            self.pushButton_2.hide()
-            self.label_2.hide()
-            self.label_3.hide()
-            if self.dualN:
-                print("here")
-                self.label_4.hide()
-                self.label_5.hide()  
-            self.dualN = False          
-            # self.stopOps = False
+        # if self.tout:
+        #     self.dis_warning()
+        #     self.tout = False
+        self.stopOps = True
+        self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(),config.start_screen)))
+        self.state = 'start'
+        self.pushButton_2.hide()
+        self.label_2.hide()
+        self.label_3.hide()
+        if self.dualN:
+            print("here")
+            self.label_4.hide()
+            self.label_5.hide()  
+        self.dualN = False          
+        # self.stopOps = False
 
 
     def detect_squat(self, squat_n=5):
+        self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(),config.blank_screen)))
+        self.label_3.show()
+        self.label_3.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.zero)))
         success = False
         def findAngle(a, b, c, minVis=0.8):
             # Finds the angle at b with endpoints a and c
@@ -131,14 +160,14 @@ class Ui_MainWindow(object):
             if angle < 0:
                 print('angle not being picked up')
                 return 0  # Joint is not being picked up
-            elif angle <= 95: #105
-                print('squat range')
+            elif angle <= 80: #105
+                # print('squat range')
                 return 1  # Squat range
             elif angle < 140: #150
                 # print('transition range')
                 return 2  # Transition range
             else:
-                print('upright range')
+                # print('upright range')
                 return 3  # Upright range
             
         # Init mediapipe drawing and pose
@@ -146,9 +175,12 @@ class Ui_MainWindow(object):
         mp_pose = mp.solutions.pose
 
         cap = None
-        cap = cv2.VideoCapture("/home/arrafi/squat_front/test_vid.mp4") # vide file
-        # cap = cv2.VideoCapture(0)
+        # cap = cv2.VideoCapture("test_vid.mp4") # vide file
+        cap = cv2.VideoCapture(0)
 
+        prev_time =  time.time()
+        s_time = prev_time
+        prev_s = prev_time
         while cap.read()[1] is None:
             print("Waiting for Video")
 
@@ -160,6 +192,7 @@ class Ui_MainWindow(object):
             lastState = 9
 
             while cap.isOpened():
+
                 if self.stopOps:
                     print('initiating stops ops')
                     self.stopOps = False
@@ -173,15 +206,23 @@ class Ui_MainWindow(object):
                     time.sleep(2)
                     print('Congratulations!! {} squats done'.format(repCount))
                     success = True
+                    
                     # cv2.destroyAllWindows()
                     break
                 ret, frame = cap.read()
+
+                new_time  = time.time()
+                if ((new_time-s_time)>20):
+                    if (new_time - prev_s) > 15:
+                        print('\n15s passed and no new squat\n')
+                        break
+
                 if frame is None:
                     print('Error: Image not found or could not be loaded.')
                     # cv2.destroyAllWindows()
                     sys.exit()
                 else:
-                    frame = cv2.resize(frame, (1080, 800), fx=0,fy=0, interpolation = cv2.INTER_CUBIC)
+                    frame = cv2.resize(frame, (1280, 720), fx=0,fy=0, interpolation = cv2.INTER_CUBIC)
                     frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
 
                 if ret == True:
@@ -216,8 +257,10 @@ class Ui_MainWindow(object):
                             if lastState == 1:
                                 print("\nGOOD! Another Squat\n")
                                 repCount = repCount + 1
+                                print("Squats done: " + (str)(repCount))
+                                prev_s = time.time()
                                 self.label_2.hide()
-                                self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(),config.blank_screen)))
+                                # self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(),config.blank_screen)))
                                 self.label_3.show()
                                 # nwords = num2words(repCount)
                                 if repCount <=9:
@@ -231,7 +274,7 @@ class Ui_MainWindow(object):
                                     self.label_5.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.nwords(str(repCount)[1]))))
                                     self.label_5.show()
                                     
-                    print("Squats done: " + (str)(repCount))
+                    
 
                     # if cv2.waitKey(1) & 0xFF == 27:
                     #     break
@@ -247,35 +290,85 @@ class Ui_MainWindow(object):
     
     def start_squat(self):
         print('initiating start ops')
-        self.stopOps = False
-        self.pushButton_2.setEnabled(True)
-        self.pushButton_2.show()
-        self.state = 'prepare'
-        self.t1 = threading.Thread(target=self.prepare_screen)
-        self.t2 = threading.Thread(target=self.getReady_screen)
-        self.t1.start()
-        self.t2.start()
-        time.sleep(1)
+        if config.dispenser:
+            try:
+                if self.dispenser.poll_data(True) == 0:
+                    self.stopOps = False
+                    self.pushButton_2.setEnabled(True)
+                    self.pushButton_2.show()
+                    self.state = 'prepare'
+                    self.t1 = threading.Thread(target=self.prepare_screen)
+                    self.t2 = threading.Thread(target=self.getReady_screen)
+                    self.t1.start()
+                    self.t2.start()
+                    time.sleep(1)
+                else:
+                    print('No coins')
+                    self.warning('Out of Coins!')
+                    self.go_back()
+            except:
+                self.warning('Dispenser not connected')
+                self.go_back()
+        else:
+            self.stopOps = False
+            self.pushButton_2.setEnabled(True)
+            self.pushButton_2.show()
+            self.state = 'prepare'
+            self.t1 = threading.Thread(target=self.prepare_screen)
+            self.t2 = threading.Thread(target=self.getReady_screen)
+            self.t1.start()
+            self.t2.start()
+            time.sleep(1)
         
     def prepare_screen(self):
         self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(),config.prepare_screen)))
         print('prepare_screen')
+        # time.sleep(config.timeout)
+        
 
     def getReady_screen(self):
         self.label_2.show()
-        time.sleep(6)
+        time.sleep(config.timeout)
         self.label_2.hide()
         if self.stopOps == False:
             self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(),config.get_ready_screen)))
             self.label_2.show()
+            time.sleep(config.timeout)
+            self.label_2.hide()
             print('prepare_screen done >>> now get_ready_screen')
             if self.detect_squat(config.squat_number):
                 self.label_3.hide()
                 self.label_4.hide()
                 self.label_5.hide()
                 self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(),config.finish_screen)))
+                self.label_2.show()
+                time.sleep(config.timeout)
+                self.label_2.hide()
+                if config.dispenser:
+                    self.dispenser.dispense(config.coins)
+                self.go_back()
+            else:
+                # self.label_2.hide()
+                print('squat timeout')
+                # self.warning('squat timeout')
+                self.tout =  True
+                self.go_back()
         else:
             self.go_back()
+    
+    def warning(self, s):
+        button = QMessageBox.critical(
+            self.centralwidget,
+            "Oh dear!",
+            s,
+            # buttons=QMessageBox.Discard,
+            # defaultButton=QMessageBox.accept
+        )
+        # if button == QMessageBox.Discard:
+        #     print("Discard!")
+
+        self.go_back()
+
     
     def squat_ops(self):
         time.sleep(12)

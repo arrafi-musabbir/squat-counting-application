@@ -1,5 +1,13 @@
 # minimum number of squats to get coins
-squat_number = 5 
+squat_number = 10
+
+dispenser = True
+
+# minimum number ofccoins to  dispense at once
+coins = 1
+
+# timeout in seconds
+timeout = 6
 
 start_screen = "images/start screen.jpg"
 prepare_screen = "images/prepare screen.jpg"

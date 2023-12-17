@@ -30,7 +30,7 @@ def legState(angle):
     if angle < 0:
         print('angle not being picked up')
         return 0  # Joint is not being picked up
-    elif angle <= 95: #105
+    elif angle <= 80: #105
         print('squat range')
         return 1  # Squat range
     elif angle < 140: #150
@@ -47,8 +47,8 @@ def detect_squat(squat_n=5):
     mp_pose = mp.solutions.pose
 
     cap = None
-    # cap = cv2.VideoCapture("/home/arrafi/squat_front/Squat_test.mp4") # vide file
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture("test_vid.mp4") # vide file
+    # cap = cv2.VideoCapture(0)
 
     while cap.read()[1] is None:
         print("Waiting for Video")
