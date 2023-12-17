@@ -88,7 +88,7 @@ class Ui_MainWindow(object):
                 self.dispenser = CHSerial(port='/dev/ttyUSB0')
                 self.dispenser.poll_data(True)
             except:
-                self.warning('dispenser not connected')
+                self.warning('Dispenser not connected! Continue without dispenser?')
         self.tout = False
         # self.dis_warning()
 
@@ -304,10 +304,10 @@ class Ui_MainWindow(object):
                     time.sleep(1)
                 else:
                     print('No coins')
-                    self.warning('Out of Coins!')
-                    self.go_back()
+                    self.warning('Out of Coins! Continue without coins?')
+                    # self.go_back()
             except:
-                self.warning('Dispenser not connected')
+                self.warning('Dispenser not connected! Continue without dispenser?')
                 self.go_back()
         else:
             self.stopOps = False
@@ -361,13 +361,15 @@ class Ui_MainWindow(object):
             self.centralwidget,
             "Oh dear!",
             s,
-            # buttons=QMessageBox.Discard,
-            # defaultButton=QMessageBox.accept
+            buttons=(QMessageBox.Ok | QMessageBox.Cancel),
+            defaultButton=QMessageBox.Ok
         )
-        # if button == QMessageBox.Discard:
-        #     print("Discard!")
-
-        self.go_back()
+        if button == QMessageBox.Ok:
+            print("Continuing without dispenser!")
+            # config.dispenser = False
+        elif button == QMessageBox.Cancel:
+            print("Cancel!")
+            self.go_back()
 
     
     def squat_ops(self):
