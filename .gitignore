@@ -3,7 +3,7 @@ squat_front/
 __pycache__/
 *.py[cod]
 *$py.class
-
+test_vid.mp4
 # C extensions
 *.so
 

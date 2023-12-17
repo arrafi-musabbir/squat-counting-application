@@ -1,7 +1,7 @@
 # minimum number of squats to get coins
-squat_number = 10
+squat_number = 5
 
-dispenser = True
+dispenser = False
 
 # minimum number ofccoins to  dispense at once
 coins = 1

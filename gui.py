@@ -175,8 +175,8 @@ class Ui_MainWindow(object):
         mp_pose = mp.solutions.pose
 
         cap = None
-        # cap = cv2.VideoCapture("test_vid.mp4") # vide file
-        cap = cv2.VideoCapture(0)
+        cap = cv2.VideoCapture("test_vid.mp4") # vide file
+        # cap = cv2.VideoCapture(0)
 
         prev_time =  time.time()
         s_time = prev_time
@@ -392,5 +392,7 @@ if __name__ == "__main__":
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
-    MainWindow.show()
+    # MainWindow.show()
+    # MainWindow.showFullScreen()
+    MainWindow.showMaximized()
     sys.exit(app.exec_())
