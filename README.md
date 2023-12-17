@@ -10,3 +10,7 @@ The GUI application will operate like the following
 
 #### Squat Detection in Backend
 ![squat-detection](https://github.com/arrafi-musabbir/squat-detection-application/blob/main/squat_results.gif)
+
+| Cat pics               | Dog pics               |
+| ---------------------- | --------- |
+| ![cat]([images/cat.png](https://github.com/arrafi-musabbir/squat-detection-application/blob/main/gui-workflow.gif)) | ![dog]([images/dog.png](https://github.com/arrafi-musabbir/squat-detection-application/blob/main/squat_results.gif)) |
