@@ -295,7 +295,7 @@ class Ui_MainWindow(object):
                     time.sleep(1)
                 else:
                     print('No coins')
-                    self.warning('Out of Coins! Continue without coins?')
+                    self.warning('Out of Coins!')
                     # self.go_back()
             except:
                 self.warning('Dispenser is not connected to your machine!')
