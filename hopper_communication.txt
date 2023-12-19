@@ -1,0 +1,64 @@
+Port settings: 9600, 8 bits, parity even, stop bits 1
+
+Machine startup-> 
+1) send command POLL DATA: 0x05 0x10 0x00 0x11 0x00 0x26 
+   Response:	05 01 00 04 00 0A machine OK
+		05 01 00 04 02 0C NO COINS
+2) Dispense 1 coin:
+Send: 0x05 0x10 0x00 0x18 0x01 0x2E
+Response if ok:
+05 01 00 AA 01 B1
+05 01 00 07 00 0D 
+05 01 00 08 00 0E 
+
+Response: There was no coin left after dispense
+Response if no coin:
+
+05 01 00 AA 01 B1
+05 01 00 07 00 0D 
+05 01 00 08 00 0E 
+05 01 00 04 02 0C
+
+Any other response should be logged to admin panel logs.
+Add option in admin menu to test dispense. Also show serial commands.
+
+
+                                                                        
+05 10 00 11 00 26	 05 10 00 18 02 2F    2 zseton                                 
+05 10 00 11 00 26 	 05 10 00 18 0A 37    10 zseton                         
+05 10 00 11 00 26 	 05 10 00 18 14 41     20 zseton                                
+                         05 10 00 18 01 2E	1 zseton                                            
+Poll status           
+	 05 10 00 11 00 26
+response ok      05 01 00 04 00 0A
+response no coin 05 01 00 04 02 0C
+                                               
+Utolso hex osszeadja az elozo hexeket.                        
+     
+0x05 0x10 0x00 0x11 0x00 0x26                                      
+0x05 0x10 0x00 0x18 0x01 0x2E
+0x05 0x10 0x00 0x18 0x02 0x2F
+
+cu jeton
+05 01 00 AA 01 B1
+05 01 00 07 00 0D 
+05 01 00 08 00 0E 
+
+
+fara jeton
+05 01 00 AA 01 B1
+05 01 00 07 00 0D 
+05 01 00 08 00 0E 
+05 01 00 04 02 0C  - a ramas fara jeton
+
+
+
+
+
+
+                                                       
+                     
+
+
+
+
