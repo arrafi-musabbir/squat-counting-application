@@ -1,0 +1,24 @@
+squat_number: 5
+dispenser: True
+coins: 1
+timeout: 4
+min_angle : 80
+max_angle : 140
+paths:
+  start_screen: images/start screen.jpg
+  prepare_screen: images/prepare screen.jpg
+  get_ready_screen: images/get ready screen.jpg
+  blank_screen: images/blank screen.jpg
+  finish_screen: images/finish screen.jpg
+  loading_gif: images/loading.gif
+  go_back: images/back.png
+  zero: images/gugolas szamok-01.svg
+  one: images/gugolas szamok-02.svg
+  two: images/gugolas szamok-03.svg
+  three: images/gugolas szamok-04.svg
+  four: images/gugolas szamok-05.svg
+  five: images/gugolas szamok-06.svg
+  six: images/gugolas szamok-07.svg
+  seven: images/gugolas szamok-08.svg
+  eight: images/gugolas szamok-09.svg
+  nine: images/gugolas szamok-10.svg

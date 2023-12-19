@@ -1,9 +1,19 @@
 import sys
-sys.path.append('/path/to/ffmpeg')
+import yaml
 import mediapipe as mp
 import cv2
 import numpy as np
+class ConfigData:
+    def __init__(self, **entries):
+        self.__dict__.update(entries)
 
+def load_config(file_path):
+    with open(file_path) as config_file:
+        config_data = yaml.safe_load(config_file)
+        return ConfigData(**config_data)
+
+# Usage
+config = load_config('config.yaml')
 
 def findAngle(a, b, c, minVis=0.8):
     # Finds the angle at b with endpoints a and c
@@ -30,10 +40,10 @@ def legState(angle):
     if angle < 0:
         print('angle not being picked up')
         return 0  # Joint is not being picked up
-    elif angle <= 80: #105
+    elif angle <= config.min_angle: #105
         print('squat range')
         return 1  # Squat range
-    elif angle < 140: #150
+    elif angle < config.max_angle: #150
         print('transition range')
         return 2  # Transition range
     else:
@@ -41,7 +51,7 @@ def legState(angle):
         return 3  # Upright range
 
 
-def detect_squat(squat_n=5):
+def detect_squat(squat_n=config.squat_number):
     # Init mediapipe drawing and pose
     mp_drawing = mp.solutions.drawing_utils
     mp_pose = mp.solutions.pose

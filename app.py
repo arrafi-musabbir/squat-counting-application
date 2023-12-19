@@ -1,16 +1,16 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox
-from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QMovie 
 import os
-import config
 import time
 import sys
+import yaml
 import mediapipe as mp
 import cv2
 import numpy as np
 import threading    
 from serial_coms import CHSerial
+from num2words import num2words
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -25,7 +25,7 @@ class Ui_MainWindow(object):
         self.label.setMinimumSize(QtCore.QSize(1080, 1920))
         self.label.setMaximumSize(QtCore.QSize(1080, 1920))
         self.label.setText("")
-        self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(),config.start_screen)))
+        self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.paths['start_screen'])))
         self.label.setScaledContents(True)
         self.label.setObjectName("label")
         self.pushButton = QtWidgets.QPushButton(self.centralwidget)
@@ -37,7 +37,7 @@ class Ui_MainWindow(object):
         self.pushButton_2.setGeometry(QtCore.QRect(0, 0, 81, 81))
         self.pushButton_2.setText("")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.go_back)), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.paths['go_back'])), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.pushButton_2.setIcon(icon)
         self.pushButton_2.setIconSize(QtCore.QSize(72, 72))
         self.pushButton_2.setFlat(True)
@@ -47,32 +47,32 @@ class Ui_MainWindow(object):
         self.label_2 = QtWidgets.QLabel(self.centralwidget)
         self.label_2.setGeometry(QtCore.QRect(490, 1530, 101, 111))
         self.label_2.setText("")
-        self.label_2.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.zero)))
+        self.label_2.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.paths['zero'])))
         self.label_2.setScaledContents(True)
         self.label_2.setObjectName("label_2")
         self.label_2.hide()
         # Loading the GIF 
-        self.movie = QMovie(os.path.join(os.getcwd(), config.loading_gif)) 
+        self.movie = QMovie(os.path.join(os.getcwd(), config.paths['loading_gif'])) 
         self.label_2.setMovie(self.movie)
         self.startAnimation() 
         self.label_3 = QtWidgets.QLabel(self.centralwidget)
         self.label_3.setGeometry(QtCore.QRect(410, 780, 340, 400))
         self.label_3.setText("")
-        self.label_3.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.zero)))
+        self.label_3.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.paths['zero'])))
         self.label_3.setScaledContents(True)
         self.label_3.setObjectName("label_3")
         self.label_3.hide()
         self.label_4 = QtWidgets.QLabel(self.centralwidget)
         self.label_4.setGeometry(QtCore.QRect(310, 780, 340, 400))
         self.label_4.setText("")
-        self.label_4.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.zero)))
+        self.label_4.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.paths['zero'])))
         self.label_4.setScaledContents(True)
         self.label_4.setObjectName("label_4")
         self.label_4.hide()
         self.label_5 = QtWidgets.QLabel(self.centralwidget)
         self.label_5.setGeometry(QtCore.QRect(490, 780, 340, 400))
         self.label_5.setText("")
-        self.label_5.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.zero)))
+        self.label_5.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.paths['zero'])))
         self.label_5.setScaledContents(True)
         self.label_5.setObjectName("label_5")
         self.label_5.hide()
@@ -83,42 +83,37 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         self.stopOps = False
         self.dualN = False
-        if config.dispenser:
-            try:
-                self.dispenser = CHSerial(port='/dev/ttyUSB0')
-                self.dispenser.poll_data(True)
-            except:
-                self.warning('Dispenser not connected! Continue without dispenser?')
+        self.dispenser_state = False
         self.tout = False
-        # self.dis_warning()
-
-    def dis_warning(self):
-        messagebox = QMessageBox(self.centralwidget)
-        messagebox.setWindowTitle("OOPS!")
-        messagebox.setIcon(QMessageBox.Critical)
-        messagebox.setText("sorry! your squats have been timed-out")
-        messagebox.setStandardButtons(messagebox.NoButton)
-        
-        time_milliseconds = 3000
-
-        QTimer.singleShot(time_milliseconds, lambda : messagebox.done(0))
-        messagebox.exec_()
-        # time.sleep(3)
-        # messagebox.close()
-        # sys.exit()
-        # messagebox.exec_()
+        self.connect_dispenser()
     
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
 
+    def connect_dispenser(self):
+        if config.dispenser:
+            try:
+                os.system("sudo chmod a+rw /dev/ttyUSB0")
+                self.dispenser = CHSerial(port='/dev/ttyUSB0')
+                self.dispenser_state = self.dispenser.poll_data(True) 
+                if self.dispenser_state == 0:
+                    print('dispenser connected successfully! and working properly')
+                elif self.dispenser_state == 1:
+                    print('dispenser connected successfully! but out of coins')
+                    self.warning('out of coins! Continue without coins?')
+                elif self.dispenser_state == 2:
+                    print("AN ERROR HAS OCCURED ON THE DISPENSER SIDE!")
+                    self.warning('dispenser not working properly')                
+            except:
+                self.warning('Dispenser not connected to your machine')
+                print('dispenser not connected')
+                self.dispenser_state = False
+
     def go_back(self):
         print("go back pressed: returning to home screen")
-        # if self.tout:
-        #     self.dis_warning()
-        #     self.tout = False
         self.stopOps = True
-        self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(),config.start_screen)))
+        self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(),config.paths['start_screen'])))
         self.state = 'start'
         self.pushButton_2.hide()
         self.label_2.hide()
@@ -132,9 +127,9 @@ class Ui_MainWindow(object):
 
 
     def detect_squat(self, squat_n=5):
-        self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(),config.blank_screen)))
+        self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(),config.paths['blank_screen'])))
         self.label_3.show()
-        self.label_3.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.zero)))
+        self.label_3.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.paths['zero'])))
         success = False
         def findAngle(a, b, c, minVis=0.8):
             # Finds the angle at b with endpoints a and c
@@ -160,10 +155,10 @@ class Ui_MainWindow(object):
             if angle < 0:
                 print('angle not being picked up')
                 return 0  # Joint is not being picked up
-            elif angle <= 80: #105
+            elif angle <= config.min_angle: #80
                 # print('squat range')
                 return 1  # Squat range
-            elif angle < 140: #150
+            elif angle < config.max_angle: #140
                 # print('transition range')
                 return 2  # Transition range
             else:
@@ -199,10 +194,10 @@ class Ui_MainWindow(object):
                     break
                 if repCount >= squat_n:
                     if repCount <= 9:
-                        self.label_3.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.nwords(repCount))))
+                        self.label_3.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.paths[self.nwords(repCount)])))
                     else:
-                        self.label_4.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.nwords(str(repCount)[0]))))
-                        self.label_5.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.nwords(str(repCount)[1]))))
+                        self.label_4.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.paths[self.nwords(str(repCount)[0])])))
+                        self.label_5.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.paths[self.nwords(str(repCount)[1])])))
                     time.sleep(2)
                     print('Congratulations!! {} squats done'.format(repCount))
                     success = True
@@ -212,7 +207,7 @@ class Ui_MainWindow(object):
                 ret, frame = cap.read()
 
                 new_time  = time.time()
-                if ((new_time-s_time)>20):
+                if ((new_time-s_time)>15):
                     if (new_time - prev_s) > 15:
                         print('\n15s passed and no new squat\n')
                         break
@@ -264,21 +259,17 @@ class Ui_MainWindow(object):
                                 self.label_3.show()
                                 # nwords = num2words(repCount)
                                 if repCount <=9:
-                                    self.label_3.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.nwords(repCount))))
+                                    self.label_3.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.paths[self.nwords(str(repCount))])))
                                 else:
                                     self.dualN = True
                                     self.label_3.hide()
                                     print('here', str(repCount))
-                                    self.label_4.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.nwords(str(repCount)[0]))))
+                                    self.label_4.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.paths[self.nwords(str(repCount)[0])])))
                                     self.label_4.show()
-                                    self.label_5.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.nwords(str(repCount)[1]))))
+                                    self.label_5.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.paths[self.nwords(str(repCount)[1])])))
                                     self.label_5.show()
-                                    
-                    
-
-                    # if cv2.waitKey(1) & 0xFF == 27:
-                    #     break
         return success
+    
     # Start Animation 
     def startAnimation(self): 
         self.movie.start() 
@@ -291,7 +282,7 @@ class Ui_MainWindow(object):
     def start_squat(self):
         print('initiating start ops')
         if config.dispenser:
-            try:
+            try: 
                 if self.dispenser.poll_data(True) == 0:
                     self.stopOps = False
                     self.pushButton_2.setEnabled(True)
@@ -307,7 +298,7 @@ class Ui_MainWindow(object):
                     self.warning('Out of Coins! Continue without coins?')
                     # self.go_back()
             except:
-                self.warning('Dispenser not connected! Continue without dispenser?')
+                self.warning('Dispenser is not connected to your machine!')
                 self.go_back()
         else:
             self.stopOps = False
@@ -319,9 +310,10 @@ class Ui_MainWindow(object):
             self.t1.start()
             self.t2.start()
             time.sleep(1)
-        
+    
+       
     def prepare_screen(self):
-        self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(),config.prepare_screen)))
+        self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(),config.paths['prepare_screen'])))
         print('prepare_screen')
         # time.sleep(config.timeout)
         
@@ -331,7 +323,7 @@ class Ui_MainWindow(object):
         time.sleep(config.timeout)
         self.label_2.hide()
         if self.stopOps == False:
-            self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(),config.get_ready_screen)))
+            self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(),config.paths['get_ready_screen'])))
             self.label_2.show()
             time.sleep(config.timeout)
             self.label_2.hide()
@@ -340,7 +332,7 @@ class Ui_MainWindow(object):
                 self.label_3.hide()
                 self.label_4.hide()
                 self.label_5.hide()
-                self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(),config.finish_screen)))
+                self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(),config.paths['finish_screen'])))
                 self.label_2.show()
                 time.sleep(config.timeout)
                 self.label_2.hide()
@@ -356,40 +348,43 @@ class Ui_MainWindow(object):
         else:
             self.go_back()
     
+    def nwords(self, n):
+        return num2words(n)
+    
     def warning(self, s):
-        button = QMessageBox.critical(
+
+        button = QMessageBox.warning(
             self.centralwidget,
-            "Oh dear!",
+            "Error!",
             s,
-            buttons=(QMessageBox.Ok | QMessageBox.Cancel),
+            buttons=(QMessageBox.Ok),
+            # buttons=(QMessageBox.Ok | QMessageBox.Cancel),
             defaultButton=QMessageBox.Ok
         )
         if button == QMessageBox.Ok:
-            print("Continuing without dispenser!")
-            # config.dispenser = False
-        elif button == QMessageBox.Cancel:
-            print("Cancel!")
             self.go_back()
-
+            # print("Continuing without dispenser!")
+            # config.dispenser = False
+        # elif button == QMessageBox.Cancel:
+        #     print("Cancel!")
+        #     self.go_back()
     
-    def squat_ops(self):
-        time.sleep(12)
-        self.detect_squat(2)    
-    
-    def screen_transition(self):
-        time.sleep(1)
-        self.label_2.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.one)))
-        time.sleep(1)
-        self.label_2.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.two)))
-        time.sleep(1)
-        self.label_2.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.three)))
-        time.sleep(1)
-        self.label_2.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.four)))
-        time.sleep(1)
-        self.label_2.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.five)))
         
 if __name__ == "__main__":
-    import sys
+
+
+    class ConfigData:
+        def __init__(self, **entries):
+            self.__dict__.update(entries)
+
+    def load_config(file_path):
+        with open(file_path) as config_file:
+            config_data = yaml.safe_load(config_file)
+            return ConfigData(**config_data)
+
+    # Usage
+    config = load_config('config.yaml')
+    
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
