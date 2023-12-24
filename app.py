@@ -18,6 +18,7 @@ class Ui_MainWindow(object):
         MainWindow.resize(1080, 1920)
         MainWindow.setMinimumSize(QtCore.QSize(1080, 1920))
         MainWindow.setMaximumSize(QtCore.QSize(1080, 1920))
+        self.config = self.load_config('config.yaml')
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.label = QtWidgets.QLabel(self.centralwidget)
@@ -25,7 +26,7 @@ class Ui_MainWindow(object):
         self.label.setMinimumSize(QtCore.QSize(1080, 1920))
         self.label.setMaximumSize(QtCore.QSize(1080, 1920))
         self.label.setText("")
-        self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.paths['start_screen'])))
+        self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), self.config.paths['start_screen'])))
         self.label.setScaledContents(True)
         self.label.setObjectName("label")
         self.pushButton = QtWidgets.QPushButton(self.centralwidget)
@@ -37,7 +38,7 @@ class Ui_MainWindow(object):
         self.pushButton_2.setGeometry(QtCore.QRect(0, 0, 81, 81))
         self.pushButton_2.setText("")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.paths['go_back'])), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), self.config.paths['go_back'])), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.pushButton_2.setIcon(icon)
         self.pushButton_2.setIconSize(QtCore.QSize(72, 72))
         self.pushButton_2.setFlat(True)
@@ -47,32 +48,32 @@ class Ui_MainWindow(object):
         self.label_2 = QtWidgets.QLabel(self.centralwidget)
         self.label_2.setGeometry(QtCore.QRect(490, 1530, 101, 111))
         self.label_2.setText("")
-        self.label_2.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.paths['zero'])))
+        self.label_2.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), self.config.paths['zero'])))
         self.label_2.setScaledContents(True)
         self.label_2.setObjectName("label_2")
         self.label_2.hide()
         # Loading the GIF 
-        self.movie = QMovie(os.path.join(os.getcwd(), config.paths['loading_gif'])) 
+        self.movie = QMovie(os.path.join(os.getcwd(), self.config.paths['loading_gif'])) 
         self.label_2.setMovie(self.movie)
         self.startAnimation() 
         self.label_3 = QtWidgets.QLabel(self.centralwidget)
         self.label_3.setGeometry(QtCore.QRect(410, 780, 340, 400))
         self.label_3.setText("")
-        self.label_3.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.paths['zero'])))
+        self.label_3.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), self.config.paths['zero'])))
         self.label_3.setScaledContents(True)
         self.label_3.setObjectName("label_3")
         self.label_3.hide()
         self.label_4 = QtWidgets.QLabel(self.centralwidget)
         self.label_4.setGeometry(QtCore.QRect(310, 780, 340, 400))
         self.label_4.setText("")
-        self.label_4.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.paths['zero'])))
+        self.label_4.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), self.config.paths['zero'])))
         self.label_4.setScaledContents(True)
         self.label_4.setObjectName("label_4")
         self.label_4.hide()
         self.label_5 = QtWidgets.QLabel(self.centralwidget)
         self.label_5.setGeometry(QtCore.QRect(490, 780, 340, 400))
         self.label_5.setText("")
-        self.label_5.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.paths['zero'])))
+        self.label_5.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), self.config.paths['zero'])))
         self.label_5.setScaledContents(True)
         self.label_5.setObjectName("label_5")
         self.label_5.hide()
@@ -86,13 +87,19 @@ class Ui_MainWindow(object):
         self.dispenser_state = False
         self.tout = False
         self.connect_dispenser()
+        
+        
+    def load_config(self, file_path):
+        with open(file_path) as config_file:
+            config_data = yaml.safe_load(config_file)
+            return ConfigData(**config_data)
     
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
 
     def connect_dispenser(self):
-        if config.dispenser:
+        if self.config.dispenser:
             try:
                 os.system("sudo chmod a+rw /dev/ttyUSB0")
                 self.dispenser = CHSerial(port='/dev/ttyUSB0')
@@ -113,10 +120,10 @@ class Ui_MainWindow(object):
     def go_back(self):
         print("go back pressed: returning to home screen")
         self.stopOps = True
-        self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(),config.paths['start_screen'])))
+        self.label_2.hide()
+        self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(),self.config.paths['start_screen'])))
         self.state = 'start'
         self.pushButton_2.hide()
-        self.label_2.hide()
         self.label_3.hide()
         if self.dualN:
             print("here")
@@ -127,9 +134,9 @@ class Ui_MainWindow(object):
 
 
     def detect_squat(self, squat_n=5):
-        self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(),config.paths['blank_screen'])))
+        self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(),self.config.paths['blank_screen'])))
         self.label_3.show()
-        self.label_3.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.paths['zero'])))
+        self.label_3.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), self.config.paths['zero'])))
         success = False
         def findAngle(a, b, c, minVis=0.8):
             # Finds the angle at b with endpoints a and c
@@ -155,10 +162,10 @@ class Ui_MainWindow(object):
             if angle < 0:
                 print('angle not being picked up')
                 return 0  # Joint is not being picked up
-            elif angle <= config.min_angle: #80
+            elif angle <= self.config.min_angle: #80
                 # print('squat range')
                 return 1  # Squat range
-            elif angle < config.max_angle: #140
+            elif angle < self.config.max_angle: #140
                 # print('transition range')
                 return 2  # Transition range
             else:
@@ -170,7 +177,10 @@ class Ui_MainWindow(object):
         mp_pose = mp.solutions.pose
 
         cap = None
-        cap = cv2.VideoCapture("test_vid.mp4") # vide file
+        if self.config.camera:
+            cap = cv2.VideoCapture(0) # webcam
+        else:
+            cap = cv2.VideoCapture("images/test_vid.mp4") # vide file
         # cap = cv2.VideoCapture(0)
 
         prev_time =  time.time()
@@ -194,10 +204,10 @@ class Ui_MainWindow(object):
                     break
                 if repCount >= squat_n:
                     if repCount <= 9:
-                        self.label_3.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.paths[self.nwords(repCount)])))
+                        self.label_3.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), self.config.paths[self.nwords(repCount)])))
                     else:
-                        self.label_4.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.paths[self.nwords(str(repCount)[0])])))
-                        self.label_5.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.paths[self.nwords(str(repCount)[1])])))
+                        self.label_4.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), self.config.paths[self.nwords(str(repCount)[0])])))
+                        self.label_5.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), self.config.paths[self.nwords(str(repCount)[1])])))
                     time.sleep(2)
                     print('Congratulations!! {} squats done'.format(repCount))
                     success = True
@@ -208,8 +218,8 @@ class Ui_MainWindow(object):
 
                 new_time  = time.time()
                 if ((new_time-s_time)>15):
-                    if (new_time - prev_s) > 15:
-                        print('\n15s passed and no new squat\n')
+                    if (new_time - prev_s) > self.config.squat_timeout:
+                        print('\n{}s passed and no new squat\n'.format(self.config.squat_timeout))
                         break
 
                 if frame is None:
@@ -255,18 +265,18 @@ class Ui_MainWindow(object):
                                 print("Squats done: " + (str)(repCount))
                                 prev_s = time.time()
                                 self.label_2.hide()
-                                # self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(),config.blank_screen)))
+                                # self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(),self.config.blank_screen)))
                                 self.label_3.show()
                                 # nwords = num2words(repCount)
                                 if repCount <=9:
-                                    self.label_3.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.paths[self.nwords(str(repCount))])))
+                                    self.label_3.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), self.config.paths[self.nwords(str(repCount))])))
                                 else:
                                     self.dualN = True
                                     self.label_3.hide()
                                     print('here', str(repCount))
-                                    self.label_4.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.paths[self.nwords(str(repCount)[0])])))
+                                    self.label_4.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), self.config.paths[self.nwords(str(repCount)[0])])))
                                     self.label_4.show()
-                                    self.label_5.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), config.paths[self.nwords(str(repCount)[1])])))
+                                    self.label_5.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), self.config.paths[self.nwords(str(repCount)[1])])))
                                     self.label_5.show()
         return success
     
@@ -281,12 +291,12 @@ class Ui_MainWindow(object):
     
     def start_squat(self):
         print('initiating start ops')
-        if config.dispenser:
+        if self.config.dispenser:
             try: 
                 if self.dispenser.poll_data(True) == 0:
                     self.stopOps = False
-                    self.pushButton_2.setEnabled(True)
-                    self.pushButton_2.show()
+                    # self.pushButton_2.setEnabled(True)
+                    # self.pushButton_2.show()
                     self.state = 'prepare'
                     self.t1 = threading.Thread(target=self.prepare_screen)
                     self.t2 = threading.Thread(target=self.getReady_screen)
@@ -302,8 +312,8 @@ class Ui_MainWindow(object):
                 self.go_back()
         else:
             self.stopOps = False
-            self.pushButton_2.setEnabled(True)
-            self.pushButton_2.show()
+            # self.pushButton_2.setEnabled(True)
+            # self.pushButton_2.show()
             self.state = 'prepare'
             self.t1 = threading.Thread(target=self.prepare_screen)
             self.t2 = threading.Thread(target=self.getReady_screen)
@@ -313,36 +323,37 @@ class Ui_MainWindow(object):
     
        
     def prepare_screen(self):
-        self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(),config.paths['prepare_screen'])))
+        self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(),self.config.paths['prepare_screen'])))
         print('prepare_screen')
-        # time.sleep(config.timeout)
+        # time.sleep(self.config.timeout)
         
 
     def getReady_screen(self):
         self.label_2.show()
-        time.sleep(config.timeout)
+        time.sleep(self.config.timeout)
         self.label_2.hide()
         if self.stopOps == False:
-            self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(),config.paths['get_ready_screen'])))
+            self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(),self.config.paths['get_ready_screen'])))
+            # self.pushButton_2.setEnabled(False)
+            # self.pushButton_2.hide()
             self.label_2.show()
-            time.sleep(config.timeout)
+            time.sleep(self.config.timeout)
             self.label_2.hide()
             print('prepare_screen done >>> now get_ready_screen')
-            if self.detect_squat(config.squat_number):
+
+            if self.detect_squat(self.config.squat_number):
                 self.label_3.hide()
                 self.label_4.hide()
                 self.label_5.hide()
-                self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(),config.paths['finish_screen'])))
+                self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(),self.config.paths['finish_screen'])))
                 self.label_2.show()
-                time.sleep(config.timeout)
+                time.sleep(self.config.timeout)
                 self.label_2.hide()
-                if config.dispenser:
-                    self.dispenser.dispense(config.coins)
+                if self.config.dispenser:
+                    self.dispenser.dispense(self.config.coins)
                 self.go_back()
             else:
-                # self.label_2.hide()
                 print('squat timeout')
-                # self.warning('squat timeout')
                 self.tout =  True
                 self.go_back()
         else:
@@ -364,32 +375,28 @@ class Ui_MainWindow(object):
         if button == QMessageBox.Ok:
             self.go_back()
             # print("Continuing without dispenser!")
-            # config.dispenser = False
+            # self.config.dispenser = False
         # elif button == QMessageBox.Cancel:
         #     print("Cancel!")
         #     self.go_back()
-    
-        
-if __name__ == "__main__":
 
 
-    class ConfigData:
-        def __init__(self, **entries):
-            self.__dict__.update(entries)
+class ConfigData:
+    def __init__(self, **entries):
+        self.__dict__.update(entries)
 
-    def load_config(file_path):
-        with open(file_path) as config_file:
-            config_data = yaml.safe_load(config_file)
-            return ConfigData(**config_data)
 
-    # Usage
-    config = load_config('config.yaml')
-    
+def main():
+
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
     # MainWindow.show()
-    # MainWindow.showFullScreen()
-    MainWindow.showMaximized()
-    sys.exit(app.exec_())
+    MainWindow.showFullScreen()
+    # MainWindow.showMaximized()
+    sys.exit(app.exec_())   
+        
+if __name__ == "__main__":
+
+    main()

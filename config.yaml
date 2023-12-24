@@ -1,7 +1,9 @@
-squat_number: 5
-dispenser: True
+squat_number: 10
+dispenser: False
+camera: False
 coins: 1
 timeout: 4
+squat_timeout: 10
 min_angle : 80
 max_angle : 140
 paths:
