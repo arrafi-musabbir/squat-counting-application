@@ -18,7 +18,7 @@ class Ui_MainWindow(object):
         MainWindow.resize(1080, 1920)
         MainWindow.setMinimumSize(QtCore.QSize(1080, 1920))
         MainWindow.setMaximumSize(QtCore.QSize(1080, 1920))
-        self.config = self.load_config('config.yaml')
+        self.config = config
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.label = QtWidgets.QLabel(self.centralwidget)
@@ -384,19 +384,26 @@ class Ui_MainWindow(object):
 class ConfigData:
     def __init__(self, **entries):
         self.__dict__.update(entries)
-
+        
+def load_config(file_path):
+    with open(file_path) as config_file:
+        config_data = yaml.safe_load(config_file)
+        return ConfigData(**config_data)
 
 def main():
 
+    config = load_config('config.yaml')
+    print(config.paths)
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
-    # MainWindow.show()
-    MainWindow.showFullScreen()
-    # MainWindow.showMaximized()
+    if config.fullscreen:
+        MainWindow.showFullScreen()
+    else:    
+        MainWindow.showNormal()
     sys.exit(app.exec_())   
         
 if __name__ == "__main__":
-
+    config = load_config('config.yaml')
     main()
