@@ -57,9 +57,10 @@ def detect_squat(squat_n=config.squat_number):
     mp_pose = mp.solutions.pose
 
     cap = None
-    cap = cv2.VideoCapture("test_vid.mp4") # vide file
-    # cap = cv2.VideoCapture(0)
-
+    if config.camera:
+        cap = cv2.VideoCapture(config.camera_id) # webcam
+    else:
+        cap = cv2.VideoCapture("images/test_vid.mp4") # video file
     while cap.read()[1] is None:
         print("Waiting for Video")
 
