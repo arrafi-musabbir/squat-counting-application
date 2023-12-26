@@ -1,7 +1,7 @@
 squat_number: 2
 dispenser: False
 camera: False
-camera_id : 1 # default webcam
+camera_id : 0 # default webcam
 coins: 1
 animation_timeout: 4
 squat_timeout: 10
