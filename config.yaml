@@ -1,12 +1,12 @@
-squat_number: 2
+squat_number: 5
 dispenser: False
-camera: False
+camera: True
 camera_id : 0 # default webcam
 coins: 1
 animation_timeout: 4
 squat_timeout: 10
-min_angle : 80
-max_angle : 140
+min_angle : 60
+max_angle : 120
 fullscreen : False
 paths:
   start_screen: images/start screen.jpg
