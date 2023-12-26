@@ -4,6 +4,20 @@ This is a desktop application that utilizes `mediapipe` library for pose estimat
 
 The application is being developed by `pyqt5` library and deployed in an [Intel NUC mini pc](https://www.intel.com/content/www/us/en/products/details/nuc/mini-pcs/products.htm) which maintains serial communication with a coin-dispenser machine. The serial communication protocol can be found here: [communication-protocol](https://github.com/arrafi-musabbir/squat-detection-application/blob/main/hopper_communication.txt)
 
+### Try the app yourself: 
+* Clone the repository
+  ```
+  git clone https://github.com/arrafi-musabbir/squat-counting-application.git
+  ```
+* Go the clone directory and install the requirements
+  ```
+  pip install -r requirements.txt
+  ```
+* Run the app
+  ```
+  python app.py
+  ```
+
 #### 
 
 | GUI workflow             | Squat Detection in Backend              |
