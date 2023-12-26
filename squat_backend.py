@@ -186,5 +186,5 @@ def detect_squat(squat_n=config.squat_number):
 
 if __name__ == "__main__":
 
-    detect_squat(4)
+    detect_squat(config.squat_number)
         # cv2.destroyAllWindows()
