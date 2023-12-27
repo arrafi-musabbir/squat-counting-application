@@ -9,7 +9,7 @@ class CHSerial:
     def __init__(self, port):
         self.cohop = serial.Serial(port=port, bytesize=serial.EIGHTBITS, baudrate=9600,
                                    parity=serial.PARITY_EVEN, stopbits=serial.STOPBITS_ONE, timeout=1)
-        self.limit = 2  # limit for the number of retries when an error occurs
+        self.limit = 3  # limit for the number of retries when an error occurs
         self.retries = 0
         self.timeout = 2  # timeout in seconds
 

@@ -1,6 +1,6 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtCore import QTimer
-from PyQt6.QtWidgets import QMessageBox
+from PyQt6.QtWidgets import QMessageBox, QInputDialog, QComboBox
 from PyQt6.QtGui import QMovie 
 import os
 import time
@@ -10,10 +10,11 @@ import mediapipe as mp
 import cv2
 import numpy as np
 import threading    
-from multiprocessing import Process
-from multiprocessing import Pool
 from serial_coms import CHSerial
 from num2words import num2words
+import subprocess
+import serial.tools.list_ports
+ports = [port.device for port in serial.tools.list_ports.comports()]
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -76,8 +77,12 @@ class Ui_MainWindow(object):
         self.dispenser_state = False
         self.tout = False
         self.prepare_screen = True
-        self.connect_dispenser()
-        self.testCamera(self.config.camera_id)
+        self.port = None
+        if self.config.dispenser:
+            if self.inputPassword():
+                self.connect_dispenser()
+        if self.config.camera:
+            self.testCamera(self.config.camera_id)
         self.remainingTime = self.config.animation_timeout
         self.timer = QTimer(MainWindow)
         self.timer.timeout.connect(self.updateTimer)
@@ -105,7 +110,6 @@ class Ui_MainWindow(object):
             except:
                 print("Dispenser is not connected to your machine")
                 self.warning('Dispenser is not connected to your machine!', 'd')
-                # self.go_back()
         else:
             print("testing without dispenser")
             if self.config.camera:
@@ -160,23 +164,65 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+    
+    
+    def selectPort(self):
+        time.sleep(1)
+        ports = [port.device for port in serial.tools.list_ports.comports()]
+        # ports = ['/dev/ttyUSB0', '/dev/ttyUSB1', '/dev/ttyUSB2']
+        if len(ports) != 0:
+            port, ok = QInputDialog.getItem(self.centralwidget, "PORT!", "Select your dispenser port", ports, 0, False)
+            print("selected port: ", port)
+            if ok:
+                self.port = str(port)
+                return True
+            else:
+                self.warning("No dispenser port selected!\nContinue without dispenser?", 'pt')
+                self.port = None
+                return False
+        else:
+            self.warning("No dispenser port detected on your machine!\nContinue without dispenser?", 'pt')
+            self.port = None
+            return False
+    
+    def inputPassword(self):
+        text, ok = QInputDialog.getText(self.centralwidget, 'SUDO!',
+                                        'Enter your sudo password')
+        if ok:
+            self.pswd = str(text)
+            if subprocess.run(f'echo {self.pswd} | sudo -S pwd', shell=True).returncode == 0:
+                print("connected to SUDO successfully!")
+                return True
+            else:
+                self.warning("Incorrect Password!\nTRY AGAIN!", 'p')
+                return False
+        else:
+            print("user cancelled the action! exiting the app")
+            sys.exit()
 
+            
     def connect_dispenser(self):
         if self.config.dispenser:
             try:
-                os.system("sudo chmod a+rw /dev/ttyUSB0")
-                self.dispenser = CHSerial(port='/dev/ttyUSB0')
-                self.dispenser_state = self.dispenser.poll_data(True) 
-                if self.dispenser_state == 0:
-                    print('dispenser connected successfully! and working properly')
-                elif self.dispenser_state == 1:
-                    print('dispenser connected successfully! but out of coins')
-                    self.warning('OUT OF COINS!', 'd')
-                elif self.dispenser_state == 2:
-                    print("AN ERROR HAS OCCURED ON THE DISPENSER SIDE!")
-                    self.warning('dispenser not working properly', 'd')                
-            except:
-                self.warning('Dispenser not connected to your machine', 'd')
+                if self.selectPort():
+                    print('trying to connect dispenser to port {}'.format(self.port))
+                    if subprocess.run(f'echo {self.pswd} | sudo -S chmod a+rw {self.port}', shell=True).returncode == 0:
+                        print('usb permission granted >>> trying to connect to dispenser')                
+                        self.dispenser = CHSerial(port=self.port)
+                        self.dispenser_state = self.dispenser.poll_data(True) 
+                        if self.dispenser_state == 0:
+                            print('dispenser connected successfully! and working properly')
+                        elif self.dispenser_state == 1:
+                            print('dispenser connected successfully! but out of coins')
+                            self.warning('OUT OF COINS!', 'd')
+                        elif self.dispenser_state == 2:
+                            print("AN ERROR HAS OCCURED ON THE DISPENSER SIDE!")
+                            self.warning('dispenser not working properly', 'd')
+                    else:
+                        self.warning(f"Can't connect dispenser to port {self.port}\nContinue without dispenser? ", 'd')          
+            except Exception as e:
+                print(e)
+                self.warning('Dispenser not connected to your machine!\nContinue without dispenser?', 'd')
                 print('dispenser not connected with the machine')
                 self.dispenser_state = False
 
@@ -358,13 +404,25 @@ class Ui_MainWindow(object):
             defaultButton=QMessageBox.StandardButton.Ok
         )
         if button == QMessageBox.StandardButton.Ok:
-            self.go_back()
+            if dev == 'p':
+                print("trying to connect to SUDO again!")
+                self.inputPassword()
+            else:
+                print("continuing without dispenser and camera")
+                self.go_back()
         else:
             if dev == 'd':
-                print("trying dispenser again!")
+                print("trying to connect dispenser again!")
                 self.connect_dispenser()
             if dev == 'c':
+                print("trying to connect camera again!")
                 self.testCamera(self.config.camera_id)
+            if dev == 'p':
+                print("trying to connect to SUDO again!")
+                self.inputPassword()
+            if dev == 'pt':
+                print("trying to get the correct port again!")
+                self.selectPort()
 
 
 class ConfigData:
