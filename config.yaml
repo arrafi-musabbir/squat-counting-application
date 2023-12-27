@@ -1,5 +1,7 @@
+pswd : 'alisca'
+usb_port : '/dev/ttyUSB0'
 squat_number: 5
-dispenser: False
+dispenser: True
 camera: False
 camera_id: 0
 coins: 1
@@ -7,7 +9,7 @@ animation_timeout: 6
 squat_timeout: 10
 min_angle: 60
 max_angle: 120
-fullscreen: True
+fullscreen: False
 paths:
   start_screen: images/start screen.jpg
   prepare_screen: images/prepare screen.jpg

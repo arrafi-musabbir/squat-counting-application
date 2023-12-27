@@ -9,7 +9,7 @@ class CHSerial:
     def __init__(self, port):
         self.cohop = serial.Serial(port=port, bytesize=serial.EIGHTBITS, baudrate=9600,
                                    parity=serial.PARITY_EVEN, stopbits=serial.STOPBITS_ONE, timeout=1)
-        self.limit = 3  # limit for the number of retries when an error occurs
+        self.limit = 2  # limit for the number of retries when an error occurs
         self.retries = 0
         self.timeout = 2  # timeout in seconds
 
@@ -58,12 +58,12 @@ class CHSerial:
 
         delay = 0.05
         if initialize:
-            delay = 4
+            delay = 3
 
         while (data == -1 or not data_comp(state_ok)) and self.retries < self.limit and initialize:
-            self.retries += 1
             data, hex_data = self.rw_data(poll_buff)
             time.sleep(delay)
+            self.retries += 1
         self.retries = 0
 
         if data_comp(state_ok):

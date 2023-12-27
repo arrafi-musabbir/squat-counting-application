@@ -79,7 +79,7 @@ class Ui_MainWindow(object):
         self.prepare_screen = True
         self.port = None
         if self.config.dispenser:
-            self.inputPassword()
+            # self.inputPassword()
             self.connect_dispenser()
         if self.config.camera:
             self.testCamera(self.config.camera_id)
@@ -203,31 +203,56 @@ class Ui_MainWindow(object):
             print("user cancelled the action! exiting the app")
             sys.exit()
 
-            
     def connect_dispenser(self):
+        self.port = self.config.usb_port
+        self.pswd = self.config.pswd
         if self.config.dispenser:
             try:
-                if self.selectPort():
-                    print('trying to connect dispenser to port {}'.format(self.port))
-                    if subprocess.run(f'echo {self.pswd} | sudo -S chmod a+rw {self.port}', shell=True).returncode == 0:
-                        print('usb permission granted >>> trying to connect to dispenser')                
-                        self.dispenser = CHSerial(port=self.port)
-                        self.dispenser_state = self.dispenser.poll_data(True) 
-                        if self.dispenser_state == 0:
-                            print('dispenser connected successfully! and working properly')
-                        elif self.dispenser_state == 1:
-                            print('dispenser connected successfully! but out of coins')
-                            self.warning('OUT OF COINS!', 'd')
-                        elif self.dispenser_state == 2:
-                            print("AN ERROR HAS OCCURED ON THE DISPENSER SIDE!")
-                            self.warning('dispenser not working properly', 'd')
-                    else:
-                        self.warning(f"Can't connect dispenser to port {self.port}\nContinue without dispenser? ", 'd')          
+                print('trying to connect dispenser to port {}'.format(self.port))
+                if subprocess.run(f'echo {self.pswd} | sudo -S chmod a+rw {self.port}', shell=True).returncode == 0:
+                    print('usb permission granted >>> trying to connect to dispenser')                
+                    self.dispenser = CHSerial(port=self.port)
+                    self.dispenser_state = self.dispenser.poll_data(True) 
+                    if self.dispenser_state == 0:
+                        print('dispenser connected successfully! and working properly')
+                    elif self.dispenser_state == 1:
+                        print('dispenser connected successfully! but out of coins')
+                        self.warning('OUT OF COINS!', 'd')
+                    elif self.dispenser_state == 2:
+                        print("AN ERROR HAS OCCURED ON THE DISPENSER SIDE!")
+                        self.warning('dispenser not working properly', 'd')
+                else:
+                    self.warning(f"Can't connect dispenser to port {self.port}\nContinue without dispenser? ", 'd')          
             except Exception as e:
                 print(e)
                 self.warning('Dispenser not connected to your machine!\nContinue without dispenser?', 'd')
                 print('dispenser not connected with the machine')
                 self.dispenser_state = False
+            
+    # def connect_dispenser(self):
+    #     if self.config.dispenser:
+    #         try:
+    #             if self.selectPort():
+    #                 print('trying to connect dispenser to port {}'.format(self.port))
+    #                 if subprocess.run(f'echo {self.pswd} | sudo -S chmod a+rw {self.port}', shell=True).returncode == 0:
+    #                     print('usb permission granted >>> trying to connect to dispenser')                
+    #                     self.dispenser = CHSerial(port=self.port)
+    #                     self.dispenser_state = self.dispenser.poll_data(True) 
+    #                     if self.dispenser_state == 0:
+    #                         print('dispenser connected successfully! and working properly')
+    #                     elif self.dispenser_state == 1:
+    #                         print('dispenser connected successfully! but out of coins')
+    #                         self.warning('OUT OF COINS!', 'd')
+    #                     elif self.dispenser_state == 2:
+    #                         print("AN ERROR HAS OCCURED ON THE DISPENSER SIDE!")
+    #                         self.warning('dispenser not working properly', 'd')
+    #                 else:
+    #                     self.warning(f"Can't connect dispenser to port {self.port}\nContinue without dispenser? ", 'd')          
+    #         except Exception as e:
+    #             print(e)
+    #             self.warning('Dispenser not connected to your machine!\nContinue without dispenser?', 'd')
+    #             print('dispenser not connected with the machine')
+    #             self.dispenser_state = False
 
     def testCamera(self, source):
         if self.config.camera:
@@ -420,12 +445,12 @@ class Ui_MainWindow(object):
             if dev == 'c':
                 print("trying to connect camera again!")
                 self.testCamera(self.config.camera_id)
-            if dev == 'p':
-                print("trying to connect to SUDO again!")
-                self.inputPassword()
-            if dev == 'pt':
-                print("trying to get the correct port again!")
-                self.selectPort()
+            # if dev == 'p':
+            #     print("trying to connect to SUDO again!")
+            #     self.inputPassword()
+            # if dev == 'pt':
+            #     print("trying to get the correct port again!")
+            #     self.selectPort()
 
 
 class ConfigData:
