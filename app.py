@@ -149,6 +149,8 @@ class Ui_MainWindow(object):
             self.label_4.hide()
             self.label_5.hide()
             self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(),self.config.paths['finish_screen'])))
+            if self.config.dispenser:
+                self.dispenser.dispense(self.config.coins)
             time.sleep(2)
             self.go_back()
         else:

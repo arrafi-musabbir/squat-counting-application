@@ -1,6 +1,6 @@
 squat_number: 5
-dispenser: True
-camera: True
+dispenser: False
+camera: False
 camera_id: 0
 coins: 1
 animation_timeout: 6
