@@ -1,5 +1,5 @@
 squat_number: 5
-dispenser: False
+dispenser: True
 camera: False
 camera_id: 0
 coins: 1

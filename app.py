@@ -1,6 +1,6 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtCore import QTimer
-from PyQt6.QtWidgets import QMessageBox, QInputDialog, QComboBox
+from PyQt6.QtWidgets import QMessageBox, QInputDialog
 from PyQt6.QtGui import QMovie 
 import os
 import time
