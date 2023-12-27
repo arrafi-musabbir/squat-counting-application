@@ -79,8 +79,8 @@ class Ui_MainWindow(object):
         self.prepare_screen = True
         self.port = None
         if self.config.dispenser:
-            if self.inputPassword():
-                self.connect_dispenser()
+            self.inputPassword()
+            self.connect_dispenser()
         if self.config.camera:
             self.testCamera(self.config.camera_id)
         self.remainingTime = self.config.animation_timeout
@@ -168,7 +168,7 @@ class Ui_MainWindow(object):
     
     def selectPort(self):
         time.sleep(1)
-        ports = [port.device for port in serial.tools.list_ports.comports()]
+        ports = [port.device for port in serial.tools.list_ports.comports() if port.device.startswith('/dev/ttyUSB')]
         # ports = ['/dev/ttyUSB0', '/dev/ttyUSB1', '/dev/ttyUSB2']
         if len(ports) != 0:
             port, ok = QInputDialog.getItem(self.centralwidget, "PORT!", "Select your dispenser port", ports, 0, False)
@@ -181,6 +181,7 @@ class Ui_MainWindow(object):
                 self.port = None
                 return False
         else:
+            print("No dispenser port detected on your machine!")
             self.warning("No dispenser port detected on your machine!\nContinue without dispenser?", 'pt')
             self.port = None
             return False
