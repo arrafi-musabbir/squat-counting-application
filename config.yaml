@@ -1,7 +1,7 @@
 pswd : 'alisca'
 usb_port : '/dev/ttyUSB0'
 squat_number: 5
-dispenser: True
+dispenser: False
 camera: False
 camera_id: 0
 coins: 1

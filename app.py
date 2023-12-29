@@ -137,12 +137,14 @@ class Ui_MainWindow(object):
             print("Animation stopped after {} seconds".format(self.config.animation_timeout))
             self.prepare_screen = True
             self.label_2.hide()
-            self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), self.config.paths['blank_screen'])))
-            self.label_3.show()
+            # self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), self.config.paths['blank_screen'])))
+            # self.label_3.show()
             return True
     
     def squat_ops(self):
         time.sleep(self.config.animation_timeout)
+        self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), self.config.paths['blank_screen'])))
+        self.label_3.show()
         print("starting squating now")
         if self.detect_squat(self.config.squat_number):
             self.label_3.hide()
