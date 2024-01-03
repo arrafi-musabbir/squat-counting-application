@@ -143,8 +143,8 @@ class Ui_MainWindow(object):
     
     def squat_ops(self):
         time.sleep(self.config.animation_timeout)
-        self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), self.config.paths['blank_screen'])))
-        self.label_3.show()
+        # self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), self.config.paths['blank_screen'])))
+        # self.label_3.show()
         print("starting squating now")
         if self.detect_squat(self.config.squat_number):
             self.label_3.hide()
@@ -173,7 +173,6 @@ class Ui_MainWindow(object):
     def selectPort(self):
         time.sleep(1)
         ports = [port.device for port in serial.tools.list_ports.comports() if port.device.startswith('/dev/ttyUSB')]
-        # ports = ['/dev/ttyUSB0', '/dev/ttyUSB1', '/dev/ttyUSB2']
         if len(ports) != 0:
             port, ok = QInputDialog.getItem(self.centralwidget, "PORT!", "Select your dispenser port", ports, 0, False)
             print("selected port: ", port)
@@ -230,31 +229,6 @@ class Ui_MainWindow(object):
                 self.warning('Dispenser not connected to your machine!\nContinue without dispenser?', 'd')
                 print('dispenser not connected with the machine')
                 self.dispenser_state = False
-            
-    # def connect_dispenser(self):
-    #     if self.config.dispenser:
-    #         try:
-    #             if self.selectPort():
-    #                 print('trying to connect dispenser to port {}'.format(self.port))
-    #                 if subprocess.run(f'echo {self.pswd} | sudo -S chmod a+rw {self.port}', shell=True).returncode == 0:
-    #                     print('usb permission granted >>> trying to connect to dispenser')                
-    #                     self.dispenser = CHSerial(port=self.port)
-    #                     self.dispenser_state = self.dispenser.poll_data(True) 
-    #                     if self.dispenser_state == 0:
-    #                         print('dispenser connected successfully! and working properly')
-    #                     elif self.dispenser_state == 1:
-    #                         print('dispenser connected successfully! but out of coins')
-    #                         self.warning('OUT OF COINS!', 'd')
-    #                     elif self.dispenser_state == 2:
-    #                         print("AN ERROR HAS OCCURED ON THE DISPENSER SIDE!")
-    #                         self.warning('dispenser not working properly', 'd')
-    #                 else:
-    #                     self.warning(f"Can't connect dispenser to port {self.port}\nContinue without dispenser? ", 'd')          
-    #         except Exception as e:
-    #             print(e)
-    #             self.warning('Dispenser not connected to your machine!\nContinue without dispenser?', 'd')
-    #             print('dispenser not connected with the machine')
-    #             self.dispenser_state = False
 
     def testCamera(self, source):
         if self.config.camera:
@@ -282,9 +256,6 @@ class Ui_MainWindow(object):
         self.dualN = False          
 
     def detect_squat(self, squat_n=5):
-        self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(),self.config.paths['blank_screen'])))
-        self.label_3.show()
-        self.label_3.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), self.config.paths['zero'])))
         success = False
         def findAngle(a, b, c, minVis=0.8):
             
@@ -337,7 +308,9 @@ class Ui_MainWindow(object):
 
         # Main Detection Loop
         with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
-
+            self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(),self.config.paths['blank_screen'])))
+            self.label_3.show()
+            self.label_3.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), self.config.paths['zero'])))
             # Initialize Reps and Body State
             repCount = 0
             lastState = 9
@@ -405,10 +378,7 @@ class Ui_MainWindow(object):
                                 repCount = repCount + 1
                                 print("Squats done: " + (str)(repCount))
                                 prev_s = time.time()
-                                # self.label_2.hide()
-                                # self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(),self.config.blank_screen)))
                                 self.label_3.show()
-                                # nwords = num2words(repCount)
                                 if repCount <=9:
                                     self.label_3.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), self.config.paths[self.nwords(str(repCount))])))
                                 else:
