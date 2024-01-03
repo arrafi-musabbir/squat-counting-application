@@ -142,7 +142,7 @@ class Ui_MainWindow(object):
             return True
     
     def squat_ops(self):
-        time.sleep(self.config.animation_timeout)
+        time.sleep(self.config.animation_timeout+1)
         # self.label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), self.config.paths['blank_screen'])))
         # self.label_3.show()
         print("starting squating now")
